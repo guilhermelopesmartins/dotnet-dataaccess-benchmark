@@ -8,9 +8,9 @@ using Microsoft.Data.SqlClient;
 namespace Benchmark.Lab.Seed;
 
 /// <summary>
-/// Gera Orders + OrderItems com Bogus e insere via SqlBulkCopy.
-/// Ids de Orders são atribuídos em memória (não deixados para o IDENTITY)
-/// para que OrderItems.OrderId já nasça correto, sem round-trip ao banco.
+/// Generates Orders + OrderItems with Bogus and inserts them via SqlBulkCopy.
+/// Order Ids are assigned in memory (not left to IDENTITY) so that
+/// OrderItems.OrderId is already correct from the start, without a round-trip to the database.
 /// </summary>
 public static class DatabaseSeeder
 {
@@ -40,7 +40,7 @@ public static class DatabaseSeeder
 
         var rnd = new Random(42);
 
-        Console.WriteLine($"Gerando {orderCount:N0} orders e seus itens em memória...");
+        Console.WriteLine($"Generating {orderCount:N0} orders and their items in memory...");
 
         for (int orderId = 1; orderId <= orderCount; orderId++)
         {
@@ -65,22 +65,22 @@ public static class DatabaseSeeder
                 DateTime.UtcNow.AddDays(-rnd.Next(0, 365)));
 
             if (orderId % 20_000 == 0)
-                Console.WriteLine($"  {orderId:N0}/{orderCount:N0} orders gerados em memória...");
+                Console.WriteLine($"  {orderId:N0}/{orderCount:N0} orders generated in memory...");
         }
 
-        Console.WriteLine($"Geração em memória concluída em {sw.Elapsed}. " +
+        Console.WriteLine($"In-memory generation completed in {sw.Elapsed}. " +
                            $"Orders: {orders.Rows.Count:N0} | OrderItems: {items.Rows.Count:N0}");
 
         using var connection = new SqlConnection(connectionString);
         connection.Open();
 
         BulkInsert(connection, orders, "dbo.Orders", SqlBulkCopyOptions.KeepIdentity);
-        Console.WriteLine($"Orders inseridos. Tempo total: {sw.Elapsed}");
+        Console.WriteLine($"Orders inserted. Total time: {sw.Elapsed}");
 
         BulkInsert(connection, items, "dbo.OrderItems", SqlBulkCopyOptions.Default);
-        Console.WriteLine($"OrderItems inseridos. Tempo total: {sw.Elapsed}");
+        Console.WriteLine($"OrderItems inserted. Total time: {sw.Elapsed}");
 
-        Console.WriteLine("Seed concluído.");
+        Console.WriteLine("Seed completed.");
     }
 
     private static void BulkInsert(SqlConnection connection, DataTable table, string destinationTable, SqlBulkCopyOptions options)

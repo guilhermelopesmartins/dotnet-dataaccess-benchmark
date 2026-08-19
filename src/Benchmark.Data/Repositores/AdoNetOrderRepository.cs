@@ -4,9 +4,9 @@ using Microsoft.Data.SqlClient;
 namespace Benchmark.Data.Repositories;
 
 /// <summary>
-/// O piso do benchmark: SqlCommand + SqlDataReader diretos, sem abstração.
-/// Nova conexão por chamada, apoiada no connection pooling do ADO.NET -
-/// é o que qualquer camada acima dele faz por baixo dos panos de qualquer forma.
+/// The benchmark's floor: raw SqlCommand + SqlDataReader, no abstraction.
+/// A new connection per call, backed by ADO.NET's connection pooling -
+/// which is what any layer above it does under the hood anyway.
 /// </summary>
 public class AdoNetOrderRepository : IOrderRepository
 {

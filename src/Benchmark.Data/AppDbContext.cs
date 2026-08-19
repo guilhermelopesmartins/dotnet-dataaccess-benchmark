@@ -9,8 +9,8 @@ public class AppDbContext : DbContext
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    // Mapeamento explícito: o schema já existe (criado via SQL puro em 001_schema.sql),
-    // não via Migrations do EF. Sem isso, as convenções do EF poderiam divergir do banco real.
+    // Explicit mapping: the schema already exists (created via raw SQL in 001_schema.sql),
+    // not via EF Migrations. Without this, EF's conventions could diverge from the real database.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Order>(entity =>

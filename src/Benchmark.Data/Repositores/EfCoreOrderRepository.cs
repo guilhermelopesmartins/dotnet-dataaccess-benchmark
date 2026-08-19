@@ -4,13 +4,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Benchmark.Data.Repositories;
 
 /// <summary>
-/// Um DbContextOptions é reaproveitado (é só configuração, sem estado),
-/// mas o DbContext em si nasce e morre a cada chamada - como aconteceria
-/// numa requisição HTTP real com AddDbContext (Scoped).
+/// A single DbContextOptions is reused (it's just configuration, no state),
+/// but the DbContext itself is created and disposed on every call - as would
+/// happen in a real HTTP request with AddDbContext (Scoped).
 ///
-/// Isso é proposital: reaproveitar o mesmo DbContext entre chamadas faria
-/// o FindAsync acertar o identity map na 2ª leitura do mesmo Id em diante
-/// e nunca mais ir ao banco - o benchmark pareceria ótimo por um motivo errado.
+/// This is intentional: reusing the same DbContext across calls would make
+/// FindAsync hit the identity map from the 2nd read of the same Id onward
+/// and never touch the database again - the benchmark would look great for
+/// the wrong reason.
 /// </summary>
 public class EfCoreOrderRepository : IOrderRepository
 {
@@ -30,8 +31,8 @@ public class EfCoreOrderRepository : IOrderRepository
         return await context.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.Id == id);
     }
 
-    /// Com tracking (padrão): cada entidade materializada ganha uma entrada
-    /// no change tracker - snapshot do estado original + metadados.
+    /// With tracking (default): every materialized entity gets an entry
+    /// in the change tracker - a snapshot of the original state plus metadata.
     public async Task<List<Order>> GetTopWithTrackingAsync(int count)
     {
         await using var context = new AppDbContext(_options);
@@ -41,8 +42,8 @@ public class EfCoreOrderRepository : IOrderRepository
             .ToListAsync();
     }
 
-    /// Sem tracking: materializa e entrega, sem guardar snapshot nenhum.
-    /// É o que se deve usar sempre que a entidade só vai ser lida, não salva de volta.
+    /// Without tracking: materializes and returns, without keeping any snapshot.
+    /// This is what should be used whenever the entity will only be read, not saved back.
     public async Task<List<Order>> GetTopNoTrackingAsync(int count)
     {
         await using var context = new AppDbContext(_options);
@@ -53,8 +54,8 @@ public class EfCoreOrderRepository : IOrderRepository
             .ToListAsync();
     }
 
-    /// Meio-termo: sem snapshot de estado, mas ainda garante "uma linha = um objeto"
-    /// caso a mesma linha apareça duas vezes num JOIN (não é o caso aqui, mas fica o registro).
+    /// Middle ground: no state snapshot, but still guarantees "one row = one object"
+    /// in case the same row appears twice in a JOIN (not the case here, but noted for the record).
     public async Task<List<Order>> GetTopNoTrackingWithIdentityResolutionAsync(int count)
     {
         await using var context = new AppDbContext(_options);

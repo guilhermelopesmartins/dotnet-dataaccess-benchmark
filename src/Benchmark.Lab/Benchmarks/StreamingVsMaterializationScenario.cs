@@ -1,4 +1,5 @@
 using Benchmark.Data;
+using Benchmark.Data.Models;
 using Benchmark.Data.Repositories;
 using BenchmarkDotNet.Attributes;
 
@@ -21,7 +22,7 @@ namespace Benchmark.Lab.Benchmarks;
 /// one Order at a time.
 /// </summary>
 [MemoryDiagnoser]
-public class Cenario3StreamingVsMaterializacao
+public class StreamingVsMaterializationScenario
 {
     private const int Count = 50_000;
 
